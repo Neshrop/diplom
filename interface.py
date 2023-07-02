@@ -53,7 +53,7 @@ class BotInterface():
                             self.params, self.offset)
 
                         worksheet = self.worksheets.pop()
-                        while from_bd.check_user(event.user_id) is True:
+                        while user_id.check_user(event.user_id) is True:
                             worksheet = self.worksheets.pop()
                         else:    
                             photos = self.vk_tools.get_photos(worksheet['id'])
