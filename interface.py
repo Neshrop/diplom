@@ -5,7 +5,10 @@ from vk_api.utils import get_random_id
 
 from config import comunity_token, acces_token
 from core import VkTools
+from data_store import engine, check_user, add_user
+
 # отправка сообщений
+
 
 
 class BotInterface():
@@ -44,25 +47,31 @@ class BotInterface():
                         photos = self.vk_tools.get_photos(worksheet['id'])
                         photo_string = ''
                         for photo in photos:
-                            photo_string += f'photo{photo["owner_id"]}_{photo["id"]},'
+                            photo_string += f'photo{photo["owner_id"]}_{photo["id"]},'   
                     else:
                         self.worksheets = self.vk_tools.search_worksheet(
                             self.params, self.offset)
 
                         worksheet = self.worksheets.pop()
-                        'првоерка анкеты в бд в соотвествие с event.user_id'
-
-                        photos = self.vk_tools.get_photos(worksheet['id'])
-                        photo_string = ''
-                        for photo in photos:
-                            photo_string += f'photo{photo["owner_id"]}_{photo["id"]},'
-                        self.offset += 10
+                        while from_bd.check_user(event.user_id) is True:
+                            worksheet = self.worksheets.pop()
+                        else:    
+                            photos = self.vk_tools.get_photos(worksheet['id'])
+                            photo_string = ''
+                            for photo in photos:
+                                photo_string += f'photo{photo["owner_id"]}_{photo["id"]},'
+                            self.offset += 50
 
                     self.message_send(
                         event.user_id,
                         f'имя: {worksheet["name"]} ссылка: vk.com/{worksheet["id"]}',
                         attachment=photo_string
                     )
+                    
+                    res = check_user(engine, event.user_id, worksheet['id'])
+                    if res == False:
+                        add_user(engine, event.user_id, worksheet['id'])
+
 
                     'добавить анкету в бд в соотвествие с event.user_id'
 

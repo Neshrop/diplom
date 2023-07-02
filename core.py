@@ -15,9 +15,12 @@ class VkTools:
         self.vkapi = vk_api.VkApi(token=acces_token)
 
     def _bdate_toyear(self, bdate):
-        user_year = bdate.split('.')[2]
-        now = datetime.now().year
-        return now - int(user_year)
+        if bdate is not None:
+            user_year = bdate.split('.')[2] 
+            now = datetime.now().year
+            return now - int(user_year)
+        else:
+            return 'Возраст не указан'
 
     def get_profile_info(self, user_id):
 
@@ -35,7 +38,8 @@ class VkTools:
                   'first_name' in info and 'last_name' in info else None,
                   'sex': info.get('sex'),
                   'city': info.get('city')['title'] if info.get('city') is not None else None,
-                  'year': self._bdate_toyear(info.get('bdate'))
+                  'year': self._bdate_toyear(info.get('bdate')),
+                  'relation': info.get('relation')
                   }
         return result
 
@@ -43,7 +47,7 @@ class VkTools:
         try:
             users = self.vkapi.method('users.search',
                                       {
-                                          'count': 10,
+                                          'count': 50,
                                           'offset': offset,
                                           'hometown': params['city'],
                                           'sex': 1 if params['sex'] == 2 else 2,
@@ -86,10 +90,10 @@ class VkTools:
 
 
 if __name__ == '__main__':
-    user_id = neshrop
+    user_id = 789657038
     tools = VkTools(acces_token)
     params = tools.get_profile_info(user_id)
-    worksheets = tools.search_worksheet(params, 20)
+    worksheets = tools.search_worksheet(params, 50)
     worksheet = worksheets.pop()
     photos = tools.get_photos(worksheet['id'])
 
