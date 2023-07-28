@@ -5,7 +5,7 @@ from vk_api.utils import get_random_id
 
 from config import comunity_token, acces_token
 from core import VkTools
-from data_store import engine, check_user, add_user
+from data_store import Viewed
 
 # отправка сообщений
 
@@ -19,6 +19,7 @@ class BotInterface():
         self.params = {}
         self.worksheets = []
         self.offset = 0
+    
 
     def message_send(self, user_id, message, attachment=None):
         self.vk.method('messages.send',
@@ -53,14 +54,14 @@ class BotInterface():
                             self.params, self.offset)
 
                         worksheet = self.worksheets.pop()
-                        while user_id.check_user(event.user_id) is True:
+                        user_id = profile_id
+                        while user_id.check_user(engine, event.user_id, worksheet["id"]) is True:
                             worksheet = self.worksheets.pop()
-                        else:    
-                            photos = self.vk_tools.get_photos(worksheet['id'])
-                            photo_string = ''
-                            for photo in photos:
-                                photo_string += f'photo{photo["owner_id"]}_{photo["id"]},'
-                            self.offset += 50
+                        photos = self.vk_tools.get_photos(worksheet['id'])
+                        photo_string = ''
+                        for photo in photos:
+                            photo_string += f'photo{photo["owner_id"]}_{photo["id"]},'
+                        self.offset += 50
 
                     self.message_send(
                         event.user_id,
@@ -68,12 +69,10 @@ class BotInterface():
                         attachment=photo_string
                     )
                     
-                    res = check_user(engine, event.user_id, worksheet['id'])
-                    if res == False:
+                    if user_id.check_user(engine, event.user_id, worksheet['id']) is False:
                         add_user(engine, event.user_id, worksheet['id'])
 
 
-                    'добавить анкету в бд в соотвествие с event.user_id'
 
                 elif event.text.lower() == 'пока':
                     self.message_send(
@@ -86,3 +85,4 @@ class BotInterface():
 if __name__ == '__main__':
     bot_interface = BotInterface(comunity_token, acces_token)
     bot_interface.event_handler()
+    # print(res)
