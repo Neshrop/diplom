@@ -3,13 +3,10 @@ import sqlalchemy as sq
 from sqlalchemy.orm import declarative_base
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import Session
-
+from config import db_url_object
 
 metadata = MetaData()
 Base = declarative_base()
-
-
-engine = create_engine("postgresql://postgres:neshrOp2023@localhost:5432/diplom")
 
 
 class Viewed(Base):
@@ -40,6 +37,7 @@ def check_user(engine, profile_id, worksheet_id):
 
 
 if __name__ == '__main__':
+    engine = create_engine(db_url_object)
     Base.metadata.create_all(engine)
 #     # add_user(engine, 21137, 188331660)
 #     res = check_user(engine, 21134, 288331660)
