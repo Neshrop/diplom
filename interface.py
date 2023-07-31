@@ -20,7 +20,7 @@ class BotInterface():
         self.worksheets = []
         self.offset = 0
     
-
+    
     def message_send(self, user_id, message, attachment=None):
         self.vk.method('messages.send',
                        {'user_id': user_id,
@@ -28,6 +28,13 @@ class BotInterface():
                         'attachment': attachment,
                         'random_id': get_random_id()}
                        )
+
+    def check_info(self,user_id, info):
+        for item in info.keys():
+            if info[item] is None:
+                self.write_msg(user_id,
+                               f'В профиле отсутствует информация о: {item}\n'
+                               f'Необходимо предоставить данные в формате "{item} данные"')
 
 # обработка событий / получение сообщений
 
@@ -39,6 +46,10 @@ class BotInterface():
                     self.params = self.vk_tools.get_profile_info(event.user_id)
                     self.message_send(
                         event.user_id, f'Привет друг, {self.params["name"]}')
+
+                    # Проверка данных пользователя для начала работы 
+                    self.check_info(event.user_id, self.params)
+
                 elif event.text.lower() == 'поиск':
                     '''Логика для поиска анкет'''
                     self.message_send(

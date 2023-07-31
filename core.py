@@ -21,6 +21,8 @@ class VkTools:
             return now - int(user_year)
         else:
             return 'Возраст не указан'
+    
+    
 
     def get_profile_info(self, user_id):
 
@@ -41,7 +43,10 @@ class VkTools:
                   'year': self._bdate_toyear(info.get('bdate')),
                   'relation': info.get('relation')
                   }
+
         return result
+        # print(result)
+
 
     def search_worksheet(self, params, offset):
         try:
@@ -66,7 +71,8 @@ class VkTools:
                   ]
 
         return result
-
+        
+    
     def get_photos(self, id):
         try:
             photos = self.vkapi.method('photos.get',
@@ -85,8 +91,12 @@ class VkTools:
                    'comments': item['comments']['count']
                    } for item in photos['items']
                   ]
-        '''сортировка п лайкам и комментам'''
-        return result[:3]
+        
+        result.sort(key=lambda x: x['likes'] + x['comments'], reverse=True)
+        if len(result) >= 3:
+            return result[:3]
+        else:
+            return None
 
 
 if __name__ == '__main__':
@@ -97,4 +107,4 @@ if __name__ == '__main__':
     worksheet = worksheets.pop()
     photos = tools.get_photos(worksheet['id'])
 
-    pprint(worksheets)
+    # print(result)
