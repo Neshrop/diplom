@@ -29,12 +29,25 @@ class BotInterface():
                         'random_id': get_random_id()}
                        )
 
-    def check_info(self,user_id, info):
+    def event_handler_add_info(self, user_id, info):
+        for event in self.longpoll.listen():
+            if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                if info[item] == 'city':
+                    self.params['city'] = event.text
+                elif info[item] == 'sex':
+                    self.params['sex'] = 2 if event.text == 'м' or 'мужской' else 1
+                elif info[item] == 'relation':
+                    self.params['relation'] = event.text
+
+
+    def check_info(self, user_id, info):
         for item in info.keys():
             if info[item] is None:
                 self.write_msg(user_id,
                                f'В профиле отсутствует информация о: {item}\n'
                                f'Необходимо предоставить данные в формате "{item} данные"')
+                
+                self.event_handler_add_info(user_id)
 
 # обработка событий / получение сообщений
 
